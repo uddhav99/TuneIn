@@ -1,0 +1,16 @@
+Have the vision routes to basically send the picture to the Microsoft API and then get the descriptive values
+Then make a spotify search using top 5 of the items that are detected
+If there are not 5 items then - figure out a way to randomise the search and return results
+Once the search is done then add it to the playlist of the user 
+
+
+        // const spotify_search_one = await axios.get('https://api.spotify.com/v1/search', {
+        //     headers: { 
+        //         'Authorization': 'Bearer ' + 'BQDunKr8uIkyY7ppXuUxaolrel3Gtwjody7rIrJvmCcZ9vR-xlu4oI7396dFlzVLc4WWxXHyM1J18PrGhuABLVf7wOPBSLZh2GhiGEfdaKmwdTqmWl3TzxY8mXONl9X9h46Dll0pQtRLXfJj0OpcUALx30KGEl2V6yvkmHaF51iavriUlfssi9fYkN26lXaBS59JIZt69H9boZTi4Efc7sE' 
+        //     }, 
+        //     params: {
+        //         q: "face",
+        //         type: "track", 
+        //         limit: 1
+        //     } 
+        // });

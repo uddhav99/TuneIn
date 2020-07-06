@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const keys = require('./config/keys');
 const cookieSession = require('cookie-session')
 
-require('./services/passport');
+const spotifyApi = require('./services/passport');
 
 const app = express();
 
@@ -20,6 +20,7 @@ app.use(passport.session());
 
 
 require('./routes/authRoutes')(app);
+require('./routes/visionRoutes')(app, spotifyApi)
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
