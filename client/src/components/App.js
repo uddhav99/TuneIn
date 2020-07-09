@@ -15,13 +15,11 @@ class App extends Component {
     render() {
         return (
             <BrowserRouter>
-                <div className="container">
-                    <Header />
-                    <Route path="/" exact={true} component={Home}/> 
-                    <Route path="/dashboard" exact={true} component={DashBoard}/>
-                </div>
+                <Header />
+                <Route path="/" exact={true} component={Home}/> 
+                <Route path="/dashboard" exact={true} component={DashBoard}/>
             </BrowserRouter>
-        )
+        );
     }
 }
 

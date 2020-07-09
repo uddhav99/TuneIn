@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 import { connect } from 'react-redux';
-import * as actions from '../actions';
 
 class Header extends Component {
 
@@ -26,29 +25,7 @@ class Header extends Component {
                 );
         }
     }
-
-    // renderContent() {
-    //     if (this.props.isLoggedIn) {
-    //         return (
-    //             <li key='1'>
-    //                 <a href="/api/logout" style={{borderRadius: '12px'}} className="waves-effect waves-light btn-small green darken-1">
-    //                     Log Out
-    //                 </a>
-    //             </li>
-    //         );
-    //     }
-    //     else {
-    //         return (
-    //             <li key='2'>
-    //                 <a href="/auth/spotify" style={{borderRadius: '12px'}} className="waves-effect waves-light btn green darken-1">
-    //                     Log in with Spotify
-    //                 </a>
-    //             </li>
-    //         );
-    //     }
-    // }
     
-
     render() {
         return (
             <nav>
