@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
-import { BrowserRouter, Route, Link } from "react-router-dom";
-
+import { BrowserRouter, Route} from "react-router-dom";
+import { connect } from 'react-redux';
+import * as actions from '../actions';
 import Header from './Header';
 import DashBoard from './Dashboard';
 import Home from './Home';
 
 class App extends Component {
+
+    componentDidMount() {
+        this.props.fetchUser();
+    }
+
     render() {
         return (
             <BrowserRouter>
@@ -19,4 +25,4 @@ class App extends Component {
     }
 }
 
-export default App;
+export default connect(null, actions)(App);

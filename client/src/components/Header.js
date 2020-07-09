@@ -1,42 +1,60 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
+import { connect } from 'react-redux';
+import * as actions from '../actions';
 
 class Header extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            isLoggedIn: true
+
+
+    renderContent() {
+        switch(this.props.auth) {
+            case null:
+                return
+            case false:
+                return (
+                    <li>
+                         <a href="/auth/spotify" style={{borderRadius: '12px'}} className="waves-effect waves-light btn green darken-1">
+                            Log in with Spotify
+                        </a>
+                    </li>
+                );
+            default:
+                return (
+                    <a href="/api/logout" style={{borderRadius: '12px'}} className="waves-effect waves-light btn-small green darken-1">
+                        Log Out
+                    </a>
+                );
         }
     }
 
-    renderContent() {
-        if (this.state.isLoggedIn) {
-            return (
-                <li>
-                    <a onClick={() => !this.state.isLoggedIn} href="/api/logout" style={{borderRadius: '12px'}} class="waves-effect waves-light btn-small green darken-1">
-                        Log Out
-                    </a>
-                </li>
-            );
-        }
-        else {
-            return (
-                <li>
-                    <a href="/auth/spotify" style={{borderRadius: '12px'}} class="waves-effect waves-light btn green darken-1">
-                        Log in with Spotify
-                    </a>
-                </li>
-            );
-        }
-    }
+    // renderContent() {
+    //     if (this.props.isLoggedIn) {
+    //         return (
+    //             <li key='1'>
+    //                 <a href="/api/logout" style={{borderRadius: '12px'}} className="waves-effect waves-light btn-small green darken-1">
+    //                     Log Out
+    //                 </a>
+    //             </li>
+    //         );
+    //     }
+    //     else {
+    //         return (
+    //             <li key='2'>
+    //                 <a href="/auth/spotify" style={{borderRadius: '12px'}} className="waves-effect waves-light btn green darken-1">
+    //                     Log in with Spotify
+    //                 </a>
+    //             </li>
+    //         );
+    //     }
+    // }
     
 
     render() {
         return (
             <nav>
-                <div class="nav-wrapper blue-grey darken-4" style={{paddingLeft: '4px'}}>
-                    <Link to={this.state.isLoggedIn ? '/dashboard' : '/'} class="brand-logo">TuneIn</Link>
-                    <ul class="right">
+                <div className="nav-wrapper blue-grey darken-4" style={{paddingLeft: '4px'}}>
+                    <Link to={this.props.auth ? '/dashboard' : '/'} className="brand-logo">TuneIn</Link>
+                    <ul className="right">
                         {this.renderContent()}
                     </ul>
                 </div>
@@ -45,4 +63,8 @@ class Header extends Component {
     }
 }
 
-export default Header;
+function mapStateToProps(state) {
+    return { auth: state.auth };
+}
+
+export default connect(mapStateToProps)(Header);
