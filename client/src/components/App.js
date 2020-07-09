@@ -13,7 +13,6 @@ class App extends Component {
                     <Header />
                     <Route path="/" exact={true} component={Home}/> 
                     <Route path="/dashboard" exact={true} component={DashBoard}/>
-                    <a href="/auth/spotify">Login with spotify</a>
                 </div>
             </BrowserRouter>
         )
