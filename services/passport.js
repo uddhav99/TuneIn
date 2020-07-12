@@ -34,7 +34,6 @@ passport.use(
         // and return that user instead.
         spotifyApi.setAccessToken(accessToken);
         spotifyApi.setRefreshToken(refreshToken);
-        console.log(accessToken);
         return done(null, profile);
       });
     }

@@ -2,6 +2,7 @@ const requireLogin = require('../middlewares/requireLogin');
 const keys = require('../config/keys');
 const axios = require('axios');
 const _ = require('lodash');
+const spotifyApi = require('../services/passport');
 
 module.exports = (app, spotifyAPI) => {
 
@@ -10,6 +11,8 @@ module.exports = (app, spotifyAPI) => {
         const URI_BASE = keys.ComputerVisionEndpoint + 'vision/v3.0/analyze';
         const imageUrl = "https://upload.wikimedia.org/wikipedia/commons/3/3c/Shaki_waterfall.jpg"; // will be sent as req body
         var results;
+
+        // making API call to microsoft cognitive services API 
         try {
             results = await axios({
                 method: 'post',
@@ -40,9 +43,13 @@ module.exports = (app, spotifyAPI) => {
             );
         });
 
-        search_and_add(req, res, to_filter);
-    });
+        // creating playlist and getting the playlist ID
+        const playlist_id = create_playlist(req, res, spotifyAPI);
 
+        // searching for relevant songs and adding them to the playlist
+        search_and_add(req, res, spotifyAPI, to_filter, playlist_id);
+    });
+    /*
     search_and_add = async (req, res, to_filter) => {
         if (to_filter.length > 0) {
             try {
@@ -81,6 +88,40 @@ module.exports = (app, spotifyAPI) => {
             }
         }
     }
+    */
+}
+create_playlist = async (req, res, spotifyAPI) => {
+    try {
+        const playlist = spotifyAPI.createPlaylist(req.user.id, 'TuneIn Playlist', { 'public' : false });
+        const playlist_id = playlist['body']['id'];
+        return playlist_id;
+    } catch (err) {
+        if (err['statusCode'] === 401) {
+            req.logout();
+            res.redirect('/');
+        }
+        else {
+            res.status(400).send(err);
+        }
+    }
+}
+
+search_and_add = async (req, res, spotifyAPI, to_filter, playlist_id) => {
+    _.map(to_filter, async (tag) => {
+        try {
+            const song_details = await spotifyAPI.searchTracks(tag.name, { limit: 1 });
+            const song_id = song_details.body['tracks']['items'][0]['id'];
+        } catch (err) {
+            if (err['statusCode'] === 401) {
+                req.logout();
+                res.redirect('/');
+            }
+            else {
+                res.status(400).send(err);
+            }
+        }
+    });
+    // figure out where to re direct user 
 }
 
 // maybe something like this 
@@ -91,8 +132,4 @@ module.exports = (app, spotifyAPI) => {
 // or can just do map and then search songs and add them into the playlist - so we will only search 
 // and add when the to_filter has some values
 
-// figure out whether search_and_add will go inside module.exports or outside
-
-
-// maybe create a new function for removing items as well?
 
