@@ -2,7 +2,6 @@ const requireLogin = require('../middlewares/requireLogin');
 const keys = require('../config/keys');
 const axios = require('axios');
 const _ = require('lodash');
-const spotifyApi = require('../services/passport');
 
 module.exports = (app, spotifyAPI) => {
 
@@ -31,7 +30,7 @@ module.exports = (app, spotifyAPI) => {
                 }
             });
         } catch (err) {
-            res.status(400).send(err);
+            return res.status(400).send(err);
         }
 
         // remove the common ones - indoor, outdoor, ground, wall, person, woman, man, ceiling, floor
@@ -42,94 +41,73 @@ module.exports = (app, spotifyAPI) => {
                 || item.name === 'floor'
             );
         });
+        console.log(to_filter); // checking tags
 
         // creating playlist and getting the playlist ID
-        const playlist_id = create_playlist(req, res, spotifyAPI);
+        var playlist_id = 0;
+        try {
+            playlist_id = await create_playlist(req, res, spotifyAPI);
+            console.log('created');
+        } catch(err) {
+            if (err['statusCode'] === 401) {
+                req.logout();
+                return res.redirect('/');
+            }
+            else {
+                return res.status(400).send(err);
+            }
+        }
 
         // searching for relevant songs and adding them to the playlist
-        search_and_add(req, res, spotifyAPI, to_filter, playlist_id);
-    });
-    /*
-    search_and_add = async (req, res, to_filter) => {
-        if (to_filter.length > 0) {
-            try {
-                const first = await spotifyAPI.searchTracks(to_filter[0].name, { limit: 1 });
-                console.log(first.body['tracks']['items'][0]['id']);
-            } catch (err) {
-                if (err['statusCode'] === 401) {
-                    req.logout();
-                    res.redirect('/');
-                }
-                // add for 400 error
-            }
-        }
-        if (to_filter.length > 1) {
-            try {
-                const second = await spotifyAPI.searchTracks(to_filter[1].name, { limit: 1 });
-                console.log(second.body['tracks']['items'][0]['id']);
-            } catch (err) {
-                if (err['statusCode'] === 401) {
-                    req.logout();
-                    res.redirect('/');
-                }
-                // add for 400 error
-            }
-        }
-        if (to_filter.length > 2) {
-            try {
-                const third = await spotifyAPI.searchTracks(to_filter[2].name, { limit: 1 });
-                console.log(third.body['tracks']['items'][0]['id']);
-            } catch (err) {
-                if (err['statusCode'] === 401) {
-                    req.logout();
-                    res.redirect('/');
-                }
-                // add for 400 error
-            }
-        }
-    }
-    */
-}
-create_playlist = async (req, res, spotifyAPI) => {
-    try {
-        const playlist = spotifyAPI.createPlaylist(req.user.id, 'TuneIn Playlist', { 'public' : false });
-        const playlist_id = playlist['body']['id'];
-        return playlist_id;
-    } catch (err) {
-        if (err['statusCode'] === 401) {
-            req.logout();
-            res.redirect('/');
-        }
-        else {
-            res.status(400).send(err);
-        }
-    }
-}
-
-search_and_add = async (req, res, spotifyAPI, to_filter, playlist_id) => {
-    _.map(to_filter, async (tag) => {
         try {
-            const song_details = await spotifyAPI.searchTracks(tag.name, { limit: 1 });
-            const song_id = song_details.body['tracks']['items'][0]['id'];
+            const id = await search_and_add(req, res, spotifyAPI, to_filter, playlist_id);
+            console.log(id);
         } catch (err) {
             if (err['statusCode'] === 401) {
                 req.logout();
-                res.redirect('/');
+                return res.redirect('/');
             }
             else {
-                res.status(400).send(err);
+                return res.status(400).send(err);
             }
         }
+
     });
-    // figure out where to re direct user 
 }
 
-// maybe something like this 
-// leave the sizes - if size is not 3 add 3 random songs in the catch block
-// then at the end, redirect to the specific page 
+// can clean up res
+create_playlist = async (req, res, spotifyAPI) => {
+    try {
+        const playlist = await spotifyAPI.createPlaylist(req.user.id, 'TuneIn Playlist', { 'public' : false });
+        const playlist_id = playlist['body']['id'];
+        return playlist_id;
+    } catch (err) {
+        throw err;
+    }
+};
+
+/* 
+  * @returns If all the promises were successful or not 
+*/
+// can clean up req and res
+search_and_add = async (req, res, spotifyAPI, to_filter, playlist_id) => {
+    return Promise.all(to_filter.map(async (tag) => {
+        const song_details = await spotifyAPI.searchTracks(tag.name, { limit: 1 });
+        const song_uri = song_details['body']['tracks']['items'][0]['uri'];
+        console.log(song_uri);
+        const add_song = await spotifyAPI.addTracksToPlaylist(playlist_id, [song_uri]);
+        console.log('added');
+    })); 
+};
 
 
-// or can just do map and then search songs and add them into the playlist - so we will only search 
-// and add when the to_filter has some values
 
 
+// have to pass in image URL in req.body
+// have to change to app.get to app.post
+// figure out how where to redirect once the searches are done and added to playlist 
+
+/* 
+    * can probably make the song searches more accurate 
+    * right now if there is rock - it gives us songs that have rockstar as well
+*/
