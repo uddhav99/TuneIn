@@ -30,7 +30,7 @@ class Header extends Component {
         return (
             <nav>
                 <div className="nav-wrapper blue-grey darken-4" style={{paddingLeft: '4px'}}>
-                    <Link to={this.props.auth ? '/dashboard' : '/'} className="brand-logo">TuneIn</Link>
+                    <Link to={this.props.auth ? '/dashboard' : '/'} className="brand-logo" style={{marginLeft:'20px'}}>TuneIn</Link>
                     <ul className="right">
                         {this.renderContent()}
                     </ul>
