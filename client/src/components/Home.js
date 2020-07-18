@@ -29,8 +29,8 @@ class Home extends Component {
                     className="container" 
                     style={{textAlign:'center', marginTop: '40px', paddingTop:'10px'}}
                 >
-                    <img src={spotifyMobile} height="300" style={{position: 'relative', left:'40px'}}/>
-                    <img src={spotifyDesktop} height="400" width="600" alt="check"/>
+                    <img src={spotifyMobile} height="300" style={{position: 'relative', left:'40px'}} alt="mobile"/>
+                    <img src={spotifyDesktop} height="400" width="600" alt="desktop"/>
                 </div>
             </div>
         );

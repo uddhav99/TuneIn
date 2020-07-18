@@ -2,22 +2,24 @@ const requireLogin = require('../middlewares/requireLogin');
 const keys = require('../config/keys');
 const axios = require('axios');
 const _ = require('lodash');
+let multer = require('multer');
+let upload = multer();
 
 module.exports = (app, spotifyAPI) => {
 
-    app.get('/api/search', requireLogin, async (req, res) => {
-
+    app.post('/api/search', upload.single('image'), requireLogin, async (req, res) => {
+        const buffer = req.file.buffer;
+        var arrByte = Uint8Array.from(buffer);
         const URI_BASE = keys.ComputerVisionEndpoint + 'vision/v3.0/analyze';
-        const imageUrl = "https://upload.wikimedia.org/wikipedia/commons/3/3c/Shaki_waterfall.jpg"; // will be sent as req body
         var results;
 
-        // making API call to microsoft cognitive services API 
+        // making request to Microsoft Cognitive Services API
         try {
             results = await axios({
                 method: 'post',
                 url: URI_BASE,
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/octet-stream',
                     'Ocp-Apim-Subscription-Key' : keys.ComputerVision
                 }, 
                 params: {
@@ -25,13 +27,12 @@ module.exports = (app, spotifyAPI) => {
                     'details': '',
                     'language': 'en'
                 },
-                data: {
-                "url": imageUrl,
-                }
+                data: arrByte
             });
         } catch (err) {
             return res.status(400).send(err);
         }
+        console.log(results['data']['tags']);
 
         // remove the common ones - indoor, outdoor, ground, wall, person, woman, man, ceiling, floor
         const to_filter = results['data']['tags'];
@@ -72,6 +73,8 @@ module.exports = (app, spotifyAPI) => {
             }
         }
 
+        res.status(200).send('working');
+
     });
 }
 
@@ -101,11 +104,9 @@ search_and_add = async (req, res, spotifyAPI, to_filter, playlist_id) => {
 };
 
 
-
-
-// have to pass in image URL in req.body
-// have to change to app.get to app.post
 // figure out how where to redirect once the searches are done and added to playlist 
+// cant redirect on a post request, have to figure that out
+// error handling and redirecting
 
 /* 
     * can probably make the song searches more accurate 
