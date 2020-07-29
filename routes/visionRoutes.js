@@ -30,7 +30,8 @@ module.exports = (app, spotifyAPI) => {
                 data: arrByte
             });
         } catch (err) {
-            return res.status(400).send(err);
+            console.log('microsoft error');
+            return res.status(400).send('cognitive services error');
         }
         console.log(results['data']['tags']);
 
@@ -47,39 +48,39 @@ module.exports = (app, spotifyAPI) => {
         // creating playlist and getting the playlist ID
         var playlist_id = 0;
         try {
-            playlist_id = await create_playlist(req, res, spotifyAPI);
+            playlist_id = await create_playlist(req, spotifyAPI);
             console.log('created');
         } catch(err) {
             if (err['statusCode'] === 401) {
                 req.logout();
-                return res.redirect('/');
+                console.log('authentication code reset');
+                return res.status(401).send('reset authentication');
             }
             else {
-                return res.status(400).send(err);
+                console.log('error - unable to create playlist');
             }
         }
 
         // searching for relevant songs and adding them to the playlist
         try {
-            const id = await search_and_add(req, res, spotifyAPI, to_filter, playlist_id);
-            console.log(id);
+            const id = await search_and_add(spotifyAPI, to_filter, playlist_id);
         } catch (err) {
             if (err['statusCode'] === 401) {
                 req.logout();
-                return res.redirect('/');
+                console.log('authentication code reset');
+                return res.status(401).send('reset authentication');
             }
             else {
-                return res.status(400).send(err);
+                console.log('error - track not found');
             }
         }
-
+        console.log('200 worked');
         res.status(200).send('working');
 
     });
 }
 
-// can clean up res
-create_playlist = async (req, res, spotifyAPI) => {
+create_playlist = async (req, spotifyAPI) => {
     try {
         const playlist = await spotifyAPI.createPlaylist(req.user.id, 'TuneIn Playlist', { 'public' : false });
         const playlist_id = playlist['body']['id'];
@@ -92,8 +93,7 @@ create_playlist = async (req, res, spotifyAPI) => {
 /* 
   * @returns If all the promises were successful or not 
 */
-// can clean up req and res
-search_and_add = async (req, res, spotifyAPI, to_filter, playlist_id) => {
+search_and_add = async (spotifyAPI, to_filter, playlist_id) => {
     return Promise.all(to_filter.map(async (tag) => {
         const song_details = await spotifyAPI.searchTracks(tag.name, { limit: 1 });
         const song_uri = song_details['body']['tracks']['items'][0]['uri'];

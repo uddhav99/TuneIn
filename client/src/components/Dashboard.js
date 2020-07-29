@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import Button from 'react-bootstrap/Button';
 import axios from 'axios';
+import { withRouter } from 'react-router-dom';
+import spotifyDesktop from '../assets/spotifyDesktop.png';
+import spotifyMobile from '../assets/spotifyMobile2.png';
 
 class Dashboard extends Component {
     constructor(props) {
@@ -11,16 +13,26 @@ class Dashboard extends Component {
     }
 
     onSubmit = async (e) => {
-        console.log(this.state.file);
         let formData = new FormData();
 
         formData.append('image', this.state.file);
-        const res = await axios({
-            method: 'post',
-            url: '/api/search',
-            data: formData,
-            headers: {'Content-Type': 'multipart/form-data' }
-        })
+        try {
+            const res = await axios({
+                method: 'post',
+                url: '/api/search',
+                data: formData,
+                headers: {'Content-Type': 'multipart/form-data' }
+            })
+        } catch (err) {
+            // authentication required 
+            if (err['response']['status'] === 401) {
+                console.log(JSON.stringify(err));
+                console.log('authentication problems');
+                this.props.history.push('/');
+            } else {
+                console.log('Error finding songs');
+            }
+        }
     }
 
     onChange = (e) => {
@@ -40,14 +52,19 @@ class Dashboard extends Component {
                     <br />
                     TuneIn will add a playlist according to your liking!
                 </h5>
-                <form>
-                    <h1>File Upload</h1>
+                <div 
+                    style={{textAlign:'left', marginTop: '40px', paddingTop:'10px', float: 'left'}}
+                >
+                    <img src={spotifyMobile} height="300" style={{position: 'relative', left:'40px'}} alt="mobile"/>
+                    <img src={spotifyDesktop} height="400" width="600" alt="desktop"/>
+                </div>
+                <form style={{textAlign: 'right', marginRight:'150px', marginTop:'200px', color:'white'}}>
                     <input type="file" accept="image/png, image/jpeg" onChange={this.onChange}/>
-                    <button type="button" onClick={this.onSubmit}>Upload</button>
+                    <button type="button" onClick={this.onSubmit}>Submit</button>
                 </form>
             </div>
         );
     }
 }
 
-export default Dashboard;
+export default withRouter(Dashboard);
