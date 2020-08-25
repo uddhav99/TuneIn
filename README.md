@@ -30,7 +30,7 @@ Example structure of keys.js file
 module.exports = {
     spotifyClientId: '',
     spotifySecret: '', 
-    cookieKey: 'jdshafjhadsjfhbadsbfasdbasdasdasdvrehtyuj', 
+    cookieKey: '' (enter any random digits and letters here), 
     spotifyRedirect: 'http://localhost:8000/auth/spotify/callback', 
     ComputerVision: '', 
     ComputerVisionEndpoint: ''
@@ -45,4 +45,5 @@ The app is currently being beta-tested, and will soon be released (hopefully by 
 
 ## Technologies
 - Front-end: React.js, Redux, JavaScript, HTML5/CSS3
-- Back-end: Node.js, Express.js, Passport.js, Spotify OAuth, Spotify API, Microsoft Cognitive Services API
+- Back-end: Node.js, Express.js, Passport.js, Spotify OAuth 
+- API's - Spotify API, Microsoft Cognitive Services API, Microsoft Azure 
